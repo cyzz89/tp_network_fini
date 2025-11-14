@@ -1,1 +1,24 @@
 
+J’ai réalisé un projet où j’utilise Docker Compose pour lancer trois services : une base de données MariaDB, une application Python Flask, et un proxy Nginx qui agit comme reverse proxy.
+
+Pour organiser mon travail, j’ai créé un dossier pour l’application Flask (contenant le script Python et un Dockerfile), 
+un dossier pour la configuration Nginx, et un fichier compose.yml à la racine.
+Dans le fichier compose.yml, je définis les trois services. Le service “db” utilise l'image MariaDB et définit les variables d’environnement pour le nom de la base, 
+le mot de passe root, l’utilisateur et son mot de passe. 
+La base est reliée aux autres services par un réseau interne Docker.
+
+Le service “app” est construit depuis le dossier contenant le Dockerfile et app.py. 
+Ce script Python propose une route principale qui affiche un message simple "hello from app!", et une route “/health” qui vérifie la connexion à la base de données en exécutant un “SELECT 1”. 
+Les paramètres de connexion à la base sont passés en variables d’environnement dans le compose.
+
+Le service “proxy” utilise l’image nginx:latest et charge un fichier de configuration qui définit un reverse proxy. 
+Toutes les requêtes reçues sur le port 80 du proxy sont transmises à l’application Flask sur le port 5000, via le nom de service Docker.
+
+J’ai pu lancer tous les services en même temps avec docker compose up -d. 
+Le bon fonctionnement de l’ensemble s’est vérifié facilement : accéder à http://localhost:5000 affiche le message de l’application et la route “/health” retourne un statut ok si la base répond.
+
+J’ai rencontré quelques problèmes, comme des erreurs d’indentation dans le compose.yml ou des ports déjà utilisés sur mon système (notamment le port 8080 par jenkins) (voir captures). 
+Pour les résoudre, j’ai corrigé l’indentation et modifié le port du proxy si besoin. 
+Quelques fois, il a fallu aussi vérifier les liens entre les services (networks) pour s’assurer qu’ils communiquaient bien ensemble.
+
+En résumé, ce projet m’a permis de mettre en place un environnement multi-conteneurs simple et fonctionnel, en automatisant la configuration à l’aide de Docker Compose.
